@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Поиск картин" %}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">{% trans "Результаты поиска" %}</h1>
+</div>
+
+{% if artworks %}
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>{% trans "Название" %}</th>
+                <th>{% trans "Художник" %}</th>
+                <th>{% trans "Продавец" %}</th>
+                <th>{% trans "Цена" %}</th>
+                <th>{% trans "Статус" %}</th>
+                <th>{% trans "Действия" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for artwork in artworks %}
+            <tr>
+                <td>{{ artwork.id }}</td>
+                <td>{{ artwork.title|truncatechars:20 }}</td>
+                <td>{{ artwork.artist.name|default:"-"|truncatechars:15 }}</td>
+                <td>{{ artwork.seller.username|truncatechars:15 }}</td>
+                <td>{{ artwork.price }} ₽</td>
+                <td>
+                    <span class="badge bg-{% if artwork.status == 'active' %}success{% elif artwork.status == 'sold' %}danger{% else %}warning{% endif %}">
+                        {{ artwork.get_status_display }}
+                    </span>
+                </td>
+                <td>
+                    <a href="{% url 'main:admin_artwork_edit' artwork.id %}" class="btn btn-sm btn-primary">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <a href="{% url 'main:admin_artwork_delete' artwork.id %}" class="btn btn-sm btn-danger">
+                        <i class="bi bi-trash"></i>
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p>{% trans "По вашему запросу ничего не найдено" %}</p>
+{% endif %}
+
+<a href="{% url 'main:admin_dashboard' %}" class="btn btn-secondary">
+    {% trans "Вернуться в админ-панель" %}
+</a>
+{% endblock %}

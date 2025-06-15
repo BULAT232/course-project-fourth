@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Оформление заказа" %}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">{% trans "Оформление заказа" %}</h1>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>{% trans "Ваш заказ" %}</h4>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Картина" %}</th>
+                                <th>{% trans "Цена" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in cart_items %}
+                            <tr>
+                                <td>{{ item.artwork.title }}</td>
+                                <td>{{ item.price|floatformat:"0" }} ₽</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>{% trans "Итого" %}</th>
+                                <th>{{ total|floatformat:"0" }} ₽</th>
+                            </tr>
+                            {% if total < min_order_amount %}
+                            <tr class="table-danger">
+                                <th colspan="2">
+                                    <i class="bi bi-exclamation-triangle-fill text-danger"></i>
+                                    {% trans "Минимальная сумма заказа 15 000 ₽" %}
+                                </th>
+                            </tr>
+                            {% endif %}
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4>{% trans "Детали оплаты" %}</h4>
+                </div>
+                <div class="card-body">
+                    {% if total >= min_order_amount %}
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">{% trans "Способ оплаты" %}</label>
+                            <select class="form-select" name="payment_method" required>
+                                <option value="">{% trans "Выберите способ оплаты" %}</option>
+                                <option value="card">{% trans "Кредитная карта" %}</option>
+                                <option value="paypal">{% trans "PayPal" %}</option>
+                                <option value="bank">{% trans "Банковский перевод" %}</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">{% trans "Адрес доставки" %}</label>
+                            <textarea class="form-control" name="shipping_address" rows="3" required></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100">
+                            {% trans "Подтвердить заказ" %}
+                        </button>
+                    </form>
+                    {% else %}
+                    <div class="alert alert-danger">
+                        <h5>{% trans "Заказ не может быть оформлен" %}</h5>
+                        <p>
+                            {% trans "Минимальная сумма заказа составляет" %} <strong>15 000 ₽</strong>.
+                            {% trans "Добавьте еще товаров в корзину." %}
+                        </p>
+                        <a href="{% url 'main:home' %}" class="btn btn-outline-primary">
+                            {% trans "Продолжить покупки" %}
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

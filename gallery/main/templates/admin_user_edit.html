@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Редактирование пользователя" %}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">{% trans "Редактирование пользователя" %}: {{ user.username }}</h1>
+</div>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">{% trans "Сохранить изменения" %}</button>
+    <a href="{% url 'main:admin_user_management' %}" class="btn btn-secondary">{% trans "Отмена" %}</a>
+</form>
+{% endblock %}

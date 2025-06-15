@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{{ artwork.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-6">
+            <img src="{{ artwork.image.url }}" 
+                 alt="{{ artwork.title }}" 
+                 class="img-fluid rounded">
+        </div>
+        <div class="col-md-6">
+            <h1>{{ artwork.title }}</h1>
+            <p class="text-muted">
+                {{ artwork.artist.name|default:"Неизвестный художник" }}
+            </p>
+            <p>{{ artwork.description }}</p>
+            
+            <div class="d-flex justify-content-between align-items-center my-4">
+                <h3 class="mb-0">
+                    {% if artwork.has_discount %}
+                        {{ artwork.discounted_price|floatformat:"0" }} ₽
+                        <small class="text-muted text-decoration-line-through">
+                            {{ artwork.price|floatformat:"0" }} ₽
+                        </small>
+                    {% else %}
+                        {{ artwork.price|floatformat:"0" }} ₽
+                    {% endif %}
+                </h3>
+                
+                {% if artwork.status == 'active' %}
+                    <a href="{% url 'main:main:add_to_cart' artwork.id %}" 
+                       class="btn btn-primary btn-lg">
+                        {% trans "В корзину" %}
+                    </a>
+                {% else %}
+                    <button class="btn btn-secondary btn-lg" disabled>
+                        {% trans "Недоступно" %}
+                    </button>
+                {% endif %}
+            </div>
+            
+            <div class="card my-4">
+                <div class="card-body">
+                    <h5>{% trans "Информация о работе" %}</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>{% trans "Стиль" %}</span>
+                            <span>{{ artwork.get_style_display }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>{% trans "Техника" %}</span>
+                            <span>{{ artwork.get_medium_display }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>{% trans "Год создания" %}</span>
+                            <span>{{ artwork.year_created }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>{% trans "Размеры" %}</span>
+                            <span>{{ artwork.dimensions }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

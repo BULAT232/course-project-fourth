@@ -1,0 +1,365 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Галерея искусств - Главная" %}{% endblock %}
+
+{% block content %}
+<!-- Герой-секция -->
+<section class="hero-section bg-light py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h1 class="display-4 fw-bold mb-4">{% trans "Найдите идеальное произведение искусства для вашего пространства" %}</h1>
+                <p class="lead mb-4">
+                    {% trans "Откройте для себя уникальные картины от талантливых художников со всего мира. Каждое произведение - это история, ожидающая своего нового дома." %}
+                </p>
+                <div class="d-flex gap-2">
+                    <a href="#featured-artworks" class="btn btn-primary btn-lg">{% trans "Исследовать" %}</a>
+                    <a href="{% url 'main:register' %}" class="btn btn-outline-primary btn-lg">{% trans "Присоединиться" %}</a>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="hero-image-container position-relative">
+                    <div class="position-absolute top-0 start-0 w-75 h-75 bg-primary rounded-3"></div>
+                    <div class="position-absolute bottom-0 end-0 w-75 h-75 bg-warning rounded-3"></div>
+                    {% with last_artwork=featured_artworks|first %}
+                    <img src="{{ last_artwork.image.url }}" 
+                         alt="{{ last_artwork.title }}" 
+                         class="position-relative img-fluid rounded-3 shadow">
+                    {% endwith %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Категории -->
+<section class="categories-section py-5 bg-white">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">{% trans "Популярные категории" %}</h2>
+            <p class="text-muted">{% trans "Исследуйте коллекции по стилям и темам" %}</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for category in categories %}
+            <div class="col-md-3">
+                <div class="card category-card h-100 border-0 shadow-sm overflow-hidden">
+                    <div style="height: 200px; background-color: #f8f9fa;" class="d-flex align-items-center justify-content-center">
+                        <span class="display-4 text-muted">{{ category.name|first }}</span>
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="card-title">{{ category.name }}</h5>
+                        <p class="card-text text-muted small">
+                            {% blocktrans count counter=category.num_artworks %}
+                                {{ counter }} произведение
+                            {% plural %}
+                                {{ counter }} произведений
+                            {% endblocktrans %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="#" class="btn btn-outline-primary">{% trans "Все категории" %}</a>
+        </div>
+    </div>
+</section>
+
+<!-- Избранные работы -->
+<section id="featured-artworks" class="featured-section py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">{% trans "Избранные работы" %}</h2>
+            <p class="text-muted">{% trans "Лучшие произведения текущего сезона" %}</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for artwork in featured_artworks %}
+            <div class="col-md-4">
+                <div class="card artwork-card h-100 border-0 shadow-sm overflow-hidden">
+                    <img src="{{ artwork.image.url }}" 
+                         alt="{{ artwork.title }}" 
+                         class="card-img-top" style="height: 300px; object-fit: cover;">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title mb-0">{{ artwork.title }}</h5>
+                            {% if artwork.has_discount %}
+                                <span class="badge bg-danger">-{% widthratio artwork.discount_percentage 1 100 %}%</span>
+                            {% endif %}
+                        </div>
+                        <p class="card-text text-muted">
+                            {{ artwork.artist.name|default:"Неизвестный художник" }}
+                        </p>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            {% if artwork.has_discount %}
+                                <div>
+                                    <span class="h5 mb-0">{{ artwork.discounted_price|floatformat:"0" }} ₽</span>
+                                    <span class="text-muted text-decoration-line-through small ms-2">
+                                        {{ artwork.price|floatformat:"0" }} ₽
+                                    </span>
+                                </div>
+                            {% else %}
+                                <span class="h5 mb-0">{{ artwork.price|floatformat:"0" }} ₽</span>
+                            {% endif %}
+                            <div>
+                                <span class="text-warning">★ ★ ★ ★ ★</span>
+                                <span class="text-muted ms-1">(12)</span>
+                            </div>
+                        </div>
+                    </div>
+                  <!-- home.html -->
+<div class="card-footer bg-white border-0 d-flex justify-content-between">
+    <a href="{% url 'main:add_to_cart' artwork.id %}" 
+       class="btn btn-sm btn-primary">
+        {% trans "В корзину" %}
+    </a>
+</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="#" class="btn btn-primary">{% trans "Все произведения" %}</a>
+        </div>
+    </div>
+</section>
+
+<!-- Как это работает -->
+<section class="how-it-works py-5 bg-white">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">{% trans "Как это работает" %}</h2>
+            <p class="text-muted">{% trans "Простой процесс покупки искусства онлайн" %}</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4 text-center">
+                <div class="step-icon mx-auto bg-primary text-white rounded-circle d-flex align-items-center justify-content-center">
+                    <span class="display-4">1</span>
+                </div>
+                <h3 class="mt-4">{% trans "Исследуйте" %}</h3>
+                <p class="text-muted">
+                    {% trans "Просматривайте тысячи произведений по стилям, цветам и размерам. Используйте фильтры для точного поиска." %}
+                </p>
+            </div>
+            
+            <div class="col-md-4 text-center">
+                <div class="step-icon mx-auto bg-primary text-white rounded-circle d-flex align-items-center justify-content-center">
+                    <span class="display-4">2</span>
+                </div>
+                <h3 class="mt-4">{% trans "Выбирайте" %}</h3>
+                <p class="text-muted">
+                    {% trans "Найдите идеальное произведение для вашего пространства. Используйте функцию 'Примерка на стену', чтобы увидеть как картина будет смотреться у вас дома." %}
+                </p>
+            </div>
+            
+            <div class="col-md-4 text-center">
+                <div class="step-icon mx-auto bg-primary text-white rounded-circle d-flex align-items-center justify-content-center">
+                    <span class="display-4">3</span>
+                </div>
+                <h3 class="mt-4">{% trans "Наслаждайтесь" %}</h3>
+                <p class="text-muted">
+                    {% trans "Безопасная оплата и доставка по всему миру. 30-дневная гарантия возврата. Ваше новое искусство будет тщательно упаковано и застраховано." %}
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Отзывы -->
+<section class="testimonials-section py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">{% trans "Отзывы покупателей" %}</h2>
+            <p class="text-muted">{% trans "Что говорят наши клиенты" %}</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for review in reviews %}
+            <div class="col-md-4">
+                <div class="card testimonial-card h-100 border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-4">
+                            {% if review.order.buyer.avatar %}
+                                <img src="{{ review.order.buyer.avatar.url }}" 
+                                     alt="{{ review.order.buyer.get_full_name }}" 
+                                     class="rounded-circle me-3" width="60" height="60">
+                            {% else %}
+                                <div class="rounded-circle me-3 bg-secondary d-flex align-items-center justify-content-center" 
+                                     style="width: 60px; height: 60px;">
+                                    <span class="text-white">{{ review.order.buyer.get_short_name|first|default:"U" }}</span>
+                                </div>
+                            {% endif %}
+                            <div>
+                                <h5 class="mb-0">{{ review.order.buyer.get_full_name|default:review.order.buyer.username }}</h5>
+                                <span class="text-muted">
+                                    {{ review.order.buyer.city|default:"Город не указан" }}
+                                </span>
+                            </div>
+                        </div>
+                        <p class="card-text">
+                            {{ review.comment|truncatechars:200 }}
+                        </p>
+                        <div class="text-warning mt-3">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= review.rating %}
+                                    ★
+                                {% else %}
+                                    ☆
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <p class="text-muted">{% trans "Пока нет отзывов" %}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Художники -->
+<section class="artists-section py-5 bg-white">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">{% trans "Наши художники" %}</h2>
+            <p class="text-muted">{% trans "Талантливые творцы со всего мира" %}</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for artist in artists %}
+            <div class="col-md-3 text-center">
+                {% if artist.photo %}
+                    <img src="{{ artist.photo.url }}" 
+                         alt="{{ artist.name }}" 
+                         class="rounded-circle mb-3" width="150" height="150" style="object-fit: cover;">
+                {% else %}
+                    <div class="bg-secondary rounded-circle mb-3 mx-auto d-flex align-items-center justify-content-center" 
+                         style="width: 150px; height: 150px;">
+                        <span class="text-white display-4">{{ artist.name|first }}</span>
+                    </div>
+                {% endif %}
+                <h4>{{ artist.name }}</h4>
+                <p class="text-muted">
+                    {{ artist.specialization|default:"Разные стили" }}
+                </p>
+                <p class="small">
+                    {{ artist.bio|truncatechars:100|default:"Описание отсутствует" }}
+                </p>
+                <a href="{{ artist.get_absolute_url }}" class="btn btn-sm btn-outline-primary">{% trans "Профиль" %}</a>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="#" class="btn btn-outline-primary">{% trans "Все художники" %}</a>
+        </div>
+    </div>
+</section>
+
+<!-- Призыв к действию -->
+<section class="cta-section py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2 class="mb-3">{% trans "Готовы украсить ваш дом искусством?" %}</h2>
+                <p class="mb-0">
+                    {% trans "Присоединяйтесь к тысячам довольных покупателей. Зарегистрируйтесь сегодня и получите скидку 10% на первую покупку!" %}
+                </p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="{% url 'main:register' %}" class="btn btn-light btn-lg px-4 py-2">{% trans "Начать покупки" %}</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        padding: 4rem 0;
+    }
+    
+    .hero-image-container {
+        height: 400px;
+    }
+    
+    .section-title {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 1.5rem;
+    }
+    
+    .section-title:after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 3px;
+        background: #0d6efd;
+    }
+    
+    .category-card {
+        transition: transform 0.3s ease;
+    }
+    
+    .category-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .artwork-card {
+        transition: transform 0.3s ease;
+    }
+    
+    .artwork-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .step-icon {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .testimonial-card {
+        transition: transform 0.3s ease;
+    }
+    
+    .testimonial-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .cta-section {
+        border-radius: 10px;
+        margin-top: 5rem;
+        margin-bottom: 5rem;
+    }
+    
+    @media (max-width: 768px) {
+        .hero-section {
+            text-align: center;
+        }
+        
+        .hero-image-container {
+            margin-top: 2rem;
+            height: 300px;
+        }
+        
+        .cta-section .text-end {
+            text-align: center !important;
+            margin-top: 2rem;
+        }
+    }
+</style>
+{% endblock %}

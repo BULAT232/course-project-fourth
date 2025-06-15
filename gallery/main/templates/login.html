@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Вход" %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">{% trans "Вход в систему" %}</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                        <div class="alert alert-danger">
+                            {% trans "Неверный email/логин или пароль. Попробуйте снова." %}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        <label for="id_username" class="form-label">{% trans "Email или логин" %}</label>
+                        {{ form.username }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="id_password" class="form-label">{% trans "Пароль" %}</label>
+                        {{ form.password }}
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="remember">
+                        <label class="form-check-label" for="remember">{% trans "Запомнить меня" %}</label>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100">{% trans "Войти" %}</button>
+                </form>
+                
+                <div class="mt-3 text-center">
+                    <p>{% trans "Еще нет аккаунта?" %} <a href="{% url 'main:register' %}">{% trans "Регистрация" %}</a></p>
+                    <p><a href="#">{% trans "Забыли пароль?" %}</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
