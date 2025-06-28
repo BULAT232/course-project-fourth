@@ -3,7 +3,7 @@ from django.urls import path
 from . import views
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import ArtworkViewSet, ArtistViewSet, CategoryViewSet, CustomAuthToken, ReviewViewSet, OrderViewSet
+from .views import ArtworkViewSet, ArtistViewSet, CategoryViewSet, CustomAuthToken, ReviewViewSet, OrderViewSet, trigger_test_error
 app_name = 'main'
 
 router = DefaultRouter()
@@ -17,6 +17,7 @@ router.register(r'orders', OrderViewSet)
 
 urlpatterns = [
     path('', views.home, name='home'),
+    path('test-error/', trigger_test_error, name='test-error'),
     path('register/', views.register_view, name='register'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
@@ -36,6 +37,8 @@ urlpatterns = [
     path('checkout/', views.checkout_view, name='checkout_view'),
     path('api/get-token/', CustomAuthToken.as_view(), name='get_token'),
     path('api/', include(router.urls)),
+
+ 
 ]
     
 

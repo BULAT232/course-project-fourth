@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load i18n %}
+{% load static %}  <!-- Добавьте эту строку -->
 
 {% block title %}{% trans "Регистрация" %}{% endblock %}
 
@@ -64,6 +65,15 @@
                     
                     <button type="submit" class="btn btn-primary w-100">{% trans "Зарегистрироваться" %}</button>
                 </form>
+                
+                <!-- Добавьте этот блок -->
+                <div class="mt-4 text-center">
+                    <p class="mb-3">{% trans "Или зарегистрируйтесь через" %}</p>
+                    <a  href="{% url 'social:begin' 'yandex-oauth2' %}?next={% url 'main:profile' %}" class="btn btn-outline-danger w-100">
+                        <i class="fab fa-yandex me-2"></i> Яндекс
+                    </a>
+                </div>
+                <!-- Конец добавленного блока -->
                 
                 <div class="mt-3 text-center">
                     <p>{% trans "Уже есть аккаунт?" %} <a href="{% url 'main:login' %}">{% trans "Войти" %}</a></p>

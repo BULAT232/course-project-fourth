@@ -45,6 +45,13 @@ class User(AbstractBaseUser, PermissionsMixin):
         ('moderator', _('Модератор')),
         ('admin', _('Администратор')),
     ]
+
+    social_id = models.CharField(
+        _('ID социального аккаунта'),
+        max_length=255,
+        blank=True,
+        null=True
+    )
     
     email = models.EmailField(_('Email'), unique=True)
     username = models.CharField(_('Логин'), max_length=30, unique=True)

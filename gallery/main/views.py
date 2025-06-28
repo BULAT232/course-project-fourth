@@ -22,6 +22,18 @@ from django.db import IntegrityError
 from django.core.exceptions import ValidationError
 from typing import Optional, Any, Union
 
+
+from django.http import HttpResponse
+import rollbar
+
+def trigger_test_error(request):
+    """View для проверки Rollbar: вызывает искусственную ошибку"""
+    try:
+        1 / 0
+    except Exception as e: 
+        rollbar.report_exc_info()
+        return HttpResponse("Тестовая ошибка отправлена в Rollbar! Проверьте панель Rollbar.")
+    
 def is_admin(user: User) -> bool:
     """
     Проверяет, является ли пользователь администратором.
@@ -34,6 +46,9 @@ def is_admin(user: User) -> bool:
     """
     return user.is_authenticated and (user.is_staff or user.is_superuser)
 
+from silk.profiling.profiler import silk_profile
+
+@silk_profile(name='Home View') 
 def home(request: HttpRequest) -> HttpResponse:
     """
     Отображает домашнюю страницу с категориями, избранными работами, отзывами и художниками.
@@ -69,6 +84,9 @@ def home(request: HttpRequest) -> HttpResponse:
         'artists': artists,
     }
     return render(request, 'home.html', context)
+from django.core.mail import send_mail
+from django.contrib.auth import login
+from django.contrib.auth.backends import ModelBackend
 
 def register_view(request: HttpRequest) -> HttpResponse:
     """
@@ -84,11 +102,20 @@ def register_view(request: HttpRequest) -> HttpResponse:
         form = UserRegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
+            send_mail(
+                'Добро пожаловать в галерею!',
+                f'Привет, {user.username}!\n\nСпасибо за регистрацию на нашем сайте.',
+                'noreply@gallery.com',
+                [user.email],
+                fail_silently=False,
+            )
             
             # Если регистрируется продавец, создаем запись верификации
             if user.role == 'seller':
                 Verification.objects.create(user=user)
                 messages.info(request, _('Ваш аккаунт продавца ожидает верификации'))
+            user.backend = f"{ModelBackend.__module__}.{ModelBackend.__name__}"
+            login(request, user)
             
             login(request, user)
             messages.success(request, _('Регистрация прошла успешно!'))

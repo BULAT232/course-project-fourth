@@ -10,6 +10,18 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+from pathlib import Path 
+DEBUG=False
+BASE_DIR = Path(__file__).resolve().parent.parent
+ROLLBAR = {
+    'access_token': 'a7fabc408cc54eb1a62a19b3bb2cdf34',
+    'environment': 'development' if DEBUG else 'production',
+    'code_version': '1.0',
+    'root': BASE_DIR,
+}
+
+
+
 import os
 from pathlib import Path
 from celery.schedules import crontab
@@ -31,10 +43,38 @@ DEBUG = True
 AUTH_USER_MODEL = 'main.User'
 
 AUTHENTICATION_BACKENDS = [
+    'social_core.backends.yandex.YandexOAuth2',
     'django.contrib.auth.backends.ModelBackend',
 ]
+SOCIAL_AUTH_YANDEX_OAUTH2_KEY = '17819eb16df24e5f93375c871334c284'  # Ваш Client ID
+SOCIAL_AUTH_YANDEX_OAUTH2_SECRET = 'ae15d764c7784fd0a97ab98cd3aef137'  # Ваш Client Secret
+SOCIAL_AUTH_YANDEX_OAUTH2_SCOPE = ['login:email', 'login:info']  # Запрашиваемые права
+LOGIN_REDIRECT_URL = '/profile/'  # После успешного входа
+LOGOUT_REDIRECT_URL = '/'  # После выхода
+SOCIAL_AUTH_REDIRECT_IS_HTTPS = False  # Отключить HTTPS для localhost
+SOCIAL_AUTH_PIPELINE = (
+    'social_core.pipeline.social_auth.social_details',
+    'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.auth_allowed',
+    'social_core.pipeline.social_auth.social_user',
+    'social_core.pipeline.user.get_username',
+    'main.pipeline.create_user',  # Наш кастомный конвейер
+    'your_app.pipeline.register_via_social',
+    'social_core.pipeline.social_auth.associate_user',
+    'social_core.pipeline.social_auth.load_extra_data',
+    'social_core.pipeline.user.user_details',
+)
 
+# Разрешить создание новых пользователей
+SOCIAL_AUTH_CREATE_USERS = True
 
+# Разрешить вход для незавершенной регистрации
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/profile/'
+SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/profile/'
+SOCIAL_AUTH_INACTIVE_USER_URL = '/inactive/'
+
+# Использовать сессии для хранения промежуточных данных
+SOCIAL_AUTH_FIELDS_STORED_IN_SESSION = ['role']
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  
 ]
@@ -58,10 +98,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'main',
+    'social_django',
+
     'corsheaders',
     'rest_framework', 
     'silk.apps.SilkAppConfig', 
 ]
+
 
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': [
@@ -76,7 +119,8 @@ REST_FRAMEWORK = {
 
 MIDDLEWARE = [
     'silk.middleware.SilkyMiddleware',
-    'main.middleware.RoleAccessMiddleware',
+    # 'main.middleware.RoleAccessMiddleware',
+    'rollbar.contrib.django.middleware.RollbarNotifierMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -88,7 +132,7 @@ MIDDLEWARE = [
   
 ]
 
-LOGIN_URL = '/accounts/login/'
+
 LOGIN_REDIRECT_URL = '/accounts/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
 
@@ -157,7 +201,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'gallery.wsgi.application'
+# WSGI_APPLICATION = 'gallery.wsgi.application'
 
 
 # Database
@@ -211,3 +255,10 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# Настройки почты для MailHog
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'localhost'
+EMAIL_PORT = 1025
+EMAIL_USE_TLS = False
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
